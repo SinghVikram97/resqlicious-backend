@@ -1,5 +1,6 @@
 package com.vikram.resqliciousbackend.jwt;
 
+import com.vikram.resqliciousbackend.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,18 +29,20 @@ public class JWTService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(User user) {
+        HashMap<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", user.getId());
+        return generateToken(extraClaims, user);
     }
 
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails
+            User user
     ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() +1000*60*24)) // Valid for one day
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
