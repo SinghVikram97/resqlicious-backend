@@ -4,10 +4,14 @@ import com.vikram.resqliciousbackend.dto.AuthRequest;
 import com.vikram.resqliciousbackend.dto.AuthResponse;
 import com.vikram.resqliciousbackend.dto.RegisterRequest;
 import com.vikram.resqliciousbackend.entity.User;
+import com.vikram.resqliciousbackend.exception.InvalidUsernamePasswordException;
+import com.vikram.resqliciousbackend.exception.UserAlreadyExistsException;
 import com.vikram.resqliciousbackend.jwt.JWTService;
 import com.vikram.resqliciousbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +33,12 @@ public class AuthService {
                 .role(request.getRole())
                 .build();
 
-        userRepository.save(user);
+        try{
+            userRepository.save(user);
+        }catch (DataIntegrityViolationException e){
+            throw new UserAlreadyExistsException(user.getEmail());
+        }
+
 
         String jwtToken = jwtService.generateToken(user);
 
@@ -46,7 +55,10 @@ public class AuthService {
                             request.getPassword()
                     )
             );
-        }catch (Exception e){
+        }catch (BadCredentialsException e){
+            throw new InvalidUsernamePasswordException();
+        }
+        catch (Exception e){
             System.out.println(e);
             throw e;
         }

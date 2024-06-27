@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserDetailsService userDetailsService;
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/{userId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<UserDTO> getUser(@PathVariable long userId){
         UserDTO user = userDetailsService.loadUserByUserId(userId);
         return new ResponseEntity<>(user, HttpStatus.OK);
