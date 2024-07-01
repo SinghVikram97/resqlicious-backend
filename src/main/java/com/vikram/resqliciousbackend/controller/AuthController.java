@@ -17,7 +17,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
             @RequestBody RegisterRequest request
@@ -25,7 +24,6 @@ public class AuthController {
         return new ResponseEntity<>(authService.register(request), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @RequestBody AuthRequest request

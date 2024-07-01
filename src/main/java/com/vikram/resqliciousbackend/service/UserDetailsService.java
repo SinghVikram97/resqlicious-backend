@@ -2,6 +2,7 @@ package com.vikram.resqliciousbackend.service;
 
 import com.vikram.resqliciousbackend.dto.UserDTO;
 import com.vikram.resqliciousbackend.entity.User;
+import com.vikram.resqliciousbackend.exception.ResourceNotFoundException;
 import com.vikram.resqliciousbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +34,10 @@ public class UserDetailsService implements org.springframework.security.core.use
         }else{
             throw new UsernameNotFoundException("User not found with id: "+id);
         }
+    }
+
+    public User getUserOrThrowException(Long userId){
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
     }
 
 }

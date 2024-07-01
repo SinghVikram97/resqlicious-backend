@@ -11,10 +11,10 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class UserDTO {
-    private long id;
-    private long restaurantId;
-    private String firstName;
-    private String lastName;
-    private String email;
+public class DishDTO {
+    private Long id;
+    private String name;
+    private Double price;
+    private Long categoryId;
+    private String description;
 }
