@@ -1,6 +1,8 @@
 package com.vikram.resqliciousbackend.service;
 
+import com.vikram.resqliciousbackend.dto.CartDTO;
 import com.vikram.resqliciousbackend.dto.OrderDTO;
+import com.vikram.resqliciousbackend.entity.Cart;
 import com.vikram.resqliciousbackend.entity.Order;
 import com.vikram.resqliciousbackend.entity.Restaurant;
 import com.vikram.resqliciousbackend.entity.User;
@@ -10,8 +12,10 @@ import com.vikram.resqliciousbackend.repository.RestaurantRepository;
 import com.vikram.resqliciousbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -77,5 +81,44 @@ public class OrderService {
 
     public Order getOrderOrThrowException(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order", "Order ID", orderId));
+    }
+
+    @Transactional
+    public void deleteOrder(Long id) {
+        Order order = getOrderOrThrowException(id);
+
+        try {
+            Restaurant restaurant = order.getRestaurant();
+            restaurant.getOrders().remove(order);
+
+            User user = order.getUser();
+            user.setOrder(null);
+
+            userRepository.save(user);
+            restaurantRepository.save(restaurant);
+
+            orderRepository.deleteById(id);
+
+        } catch (Exception e) {
+            // Log the exception
+            System.err.println("Failed to delete order: " + e.getMessage());
+            throw new RuntimeException("Failed to delete order", e);
+        }
+    }
+
+    public OrderDTO getOrderByUserId(long userId) {
+        Optional<Order> orderOptional = orderRepository.findByUserId(userId);
+        if(orderOptional.isPresent()){
+            Order order = orderOptional.get();
+            return OrderDTO.builder()
+                    .id(order.getId())
+                    .userId(order.getId())
+                    .restaurantId(order.getId())
+                    .dishQuantities(order.getDishQuantities())
+                    .pickuptime(order.getPickuptime())
+                    .build();
+        }else{
+            throw new ResourceNotFoundException("User Cart", "User ID", userId);
+        }
     }
 }

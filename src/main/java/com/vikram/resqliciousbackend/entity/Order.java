@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Entity
-@Table(name = "order")
+@Table(name = "ordertable")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -27,7 +27,7 @@ public class Order {
     private User user;
 
     @ElementCollection
-    @CollectionTable(name = "cart_dishes", joinColumns = @JoinColumn(name = "cart_id"))
+    @CollectionTable(name = "order_dishes", joinColumns = @JoinColumn(name = "order_id"))
     @MapKeyColumn(name = "dish_id")
     @Column(name = "quantity")
     private Map<Long, Integer> dishQuantities = new HashMap<>();
