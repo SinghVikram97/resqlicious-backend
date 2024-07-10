@@ -61,8 +61,8 @@ public class OrderService {
         Order order = getOrderOrThrowException(orderId);
         return OrderDTO.builder()
                 .id(order.getId())
-                .userId(order.getId())
-                .restaurantId(order.getId())
+                .userId(order.getUser().getId())
+                .restaurantId(order.getRestaurant().getId())
                 .dishQuantities(order.getDishQuantities())
                 .pickuptime(order.getPickuptime())
                 .build();
@@ -72,8 +72,8 @@ public class OrderService {
         List<Order> allOrdersForRestaurant = orderRepository.findAllByRestaurantId(restaurantId);
         return allOrdersForRestaurant.stream().map(order -> OrderDTO.builder()
                 .id(order.getId())
-                .userId(order.getId())
-                .restaurantId(order.getId())
+                .userId(order.getUser().getId())
+                .restaurantId(order.getRestaurant().getId())
                 .dishQuantities(order.getDishQuantities())
                 .pickuptime(order.getPickuptime())
                 .build()).toList();
@@ -112,8 +112,8 @@ public class OrderService {
             Order order = orderOptional.get();
             return OrderDTO.builder()
                     .id(order.getId())
-                    .userId(order.getId())
-                    .restaurantId(order.getId())
+                    .userId(order.getUser().getId())
+                    .restaurantId(order.getRestaurant().getId())
                     .dishQuantities(order.getDishQuantities())
                     .pickuptime(order.getPickuptime())
                     .build();
