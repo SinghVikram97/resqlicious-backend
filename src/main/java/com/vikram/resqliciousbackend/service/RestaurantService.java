@@ -10,7 +10,13 @@ import com.vikram.resqliciousbackend.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +31,6 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final UserDetailsService userDetailsService;
     private final MenuService menuService;
-
     @Transactional
     public RestaurantDTO addRestaurant(RestaurantDTO restaurantDTO) {
         Long userId = restaurantDTO.getUserId();
@@ -68,7 +73,49 @@ public class RestaurantService {
                 .phone(savedRestaurant.getPhone())
                 .email(savedRestaurant.getEmail())
                 .userId(savedRestaurant.getUser().getId())
+                .imageUrl(savedRestaurant.getImageUrl())
                 .build();
+    }
+
+    public RestaurantDTO addRestaurantImage(Long id, String path, MultipartFile file) throws IOException {
+        Restaurant restaurant = getRestaurantOrThrowException(id);
+
+        // File logic
+        String originalFilename = file.getOriginalFilename();
+
+        // Full path
+        String filePath = path + File.separator + originalFilename;
+
+        // Create folder if not created
+        File f = new File(path);
+
+        if(!f.exists()) {
+            f.mkdir();
+        }
+
+        // File copy
+        Files.copy(file.getInputStream(), Paths.get(filePath));
+
+        restaurant.setImageUrl(originalFilename);
+
+
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+
+        return RestaurantDTO.builder()
+                .id(savedRestaurant.getId())
+                .name(savedRestaurant.getName())
+                .rating(savedRestaurant.getRating())
+                .cuisine(savedRestaurant.getCuisine())
+                .address(savedRestaurant.getAddress())
+                .avgPrice(savedRestaurant.getAvgPrice())
+                .menuId(nonNull(savedRestaurant.getMenu()) ? savedRestaurant.getMenu().getId() : null)
+                .description(savedRestaurant.getDescription())
+                .phone(savedRestaurant.getPhone())
+                .email(savedRestaurant.getEmail())
+                .userId(savedRestaurant.getUser().getId())
+                .imageUrl(savedRestaurant.getImageUrl())
+                .build();
+
     }
 
     public RestaurantDTO getRestaurant(Long id) {
@@ -85,6 +132,7 @@ public class RestaurantService {
                 .phone(restaurant.getPhone())
                 .email(restaurant.getEmail())
                 .userId(restaurant.getUser().getId())
+                .imageUrl(restaurant.getImageUrl())
                 .build();
     }
 
@@ -115,6 +163,7 @@ public class RestaurantService {
                 .phone(savedRestaurant.getPhone())
                 .email(savedRestaurant.getEmail())
                 .userId(savedRestaurant.getUser().getId())
+                .imageUrl(savedRestaurant.getImageUrl())
                 .build();
     }
 
@@ -133,6 +182,7 @@ public class RestaurantService {
                 .phone(restaurant.getPhone())
                 .email(restaurant.getEmail())
                 .userId(restaurant.getUser().getId())
+                .imageUrl(restaurant.getImageUrl())
                 .build()).collect(Collectors.toList());
     }
 
@@ -157,6 +207,7 @@ public class RestaurantService {
                     .phone(restaurant.getPhone())
                     .email(restaurant.getEmail())
                     .userId(restaurant.getUser().getId())
+                    .imageUrl(restaurant.getImageUrl())
                     .build();
 
             return List.of(restaurantDTO);

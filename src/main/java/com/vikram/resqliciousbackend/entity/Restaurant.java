@@ -53,4 +53,8 @@ public class Restaurant {
 
     @OneToMany(mappedBy = "restaurant", fetch=FetchType.EAGER)
     private List<Order> orders;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
 }
