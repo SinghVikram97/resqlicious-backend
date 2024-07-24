@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -83,8 +80,12 @@ public class RestaurantService {
         // File logic
         String originalFilename = file.getOriginalFilename();
 
+
+        String randomID = UUID.randomUUID().toString();
+        String randomFileName= randomID.concat(originalFilename.substring(originalFilename.lastIndexOf(".")));
+
         // Full path
-        String filePath = path + File.separator + originalFilename;
+        String filePath = path + File.separator + randomFileName;
 
         // Create folder if not created
         File f = new File(path);
@@ -96,7 +97,7 @@ public class RestaurantService {
         // File copy
         Files.copy(file.getInputStream(), Paths.get(filePath));
 
-        restaurant.setImageUrl(originalFilename);
+        restaurant.setImageUrl(randomFileName);
 
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
