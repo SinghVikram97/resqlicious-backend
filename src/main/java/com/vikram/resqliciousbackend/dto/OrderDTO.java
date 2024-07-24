@@ -16,4 +16,6 @@ public class OrderDTO {
     private long userId;
     private Map<Long, Integer> dishQuantities = new HashMap<>();
     private String pickuptime;
+    private double totalPrice;
+    private String paymentToken;
 }
