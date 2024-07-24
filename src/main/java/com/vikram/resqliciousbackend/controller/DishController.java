@@ -1,48 +1,46 @@
-package com.vikram.resqliciousbackend.controller;
+package com.example.dishapp.controller;
 
-import com.vikram.resqliciousbackend.dto.DishDTO;
-import com.vikram.resqliciousbackend.service.DishService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import com.example.dishapp.dto.DishDTO;
+import com.example.dishapp.entity.Dish;
+import com.example.dishapp.repository.DishRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/v1/dishes")
+@RequestMapping("/api/dishes")
 public class DishController {
-    private final DishService dishService;
+
+    @Autowired
+    private DishRepository dishRepository;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<DishDTO> addDish(@RequestBody DishDTO dishDTO) {
-        DishDTO addedDish = dishService.addDish(dishDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(addedDish);
-    }
+    public ResponseEntity<DishDTO> createDish(@RequestParam("name") String name, @RequestParam("photo") MultipartFile photo) throws IOException {
+        Dish dish = new Dish();
+        dish.setName(name);
+        dish.setPhoto(photo.getBytes());
+        Dish savedDish = dishRepository.save(dish);
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<DishDTO> getDish(@PathVariable Long id) {
-        DishDTO dishDTO = dishService.getDish(id);
+        DishDTO dishDTO = new DishDTO(savedDish.getId(), savedDish.getName(), Base64Utils.encodeToString(savedDish.getPhoto()));
         return ResponseEntity.ok(dishDTO);
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<DishDTO> updateDish(@PathVariable Long id, @RequestBody DishDTO dishDTO) {
-        DishDTO updatedDishDTO = dishService.updateDish(id, dishDTO);
-        return ResponseEntity.ok(updatedDishDTO);
+    @GetMapping
+    public List<DishDTO> getAllDishes() {
+        return dishRepository.findAll().stream().map(dish -> new DishDTO(dish.getId(), dish.getName(), Base64Utils.encodeToString(dish.getPhoto()))).collect(Collectors.toList());
     }
 
-
-
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
-    public ResponseEntity<List<DishDTO>> getAllCategories() {
-        List<DishDTO> allDishes = dishService.getAllDishes();
-        return ResponseEntity.ok(allDishes);
+    @GetMapping("/{id}")
+    public ResponseEntity<DishDTO> getDishById(@PathVariable Long id) {
+        return dishRepository.findById(id)
+                .map(dish -> new DishDTO(dish.getId(), dish.getName(), Base64Utils.encodeToString(dish.getPhoto())))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
