@@ -17,4 +17,5 @@ public class DishDTO {
     private Double price;
     private Long categoryId;
     private String description;
+    private Integer quantity;
 }

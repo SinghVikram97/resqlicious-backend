@@ -26,6 +26,7 @@ public class DishService {
                 .price(dishDTO.getPrice())
                 .category(category)
                 .description(dishDTO.getDescription())
+                .quantity(dishDTO.getQuantity())
                 .build();
 
         Dish savedDish = dishRepository.save(dish);
@@ -38,6 +39,7 @@ public class DishService {
                 .categoryId(savedDish.getCategory().getId())
                 .price(savedDish.getPrice())
                 .description(savedDish.getDescription())
+                .quantity(savedDish.getQuantity())
                 .build();
 
     }
@@ -51,6 +53,7 @@ public class DishService {
                 .price(dish.getPrice())
                 .categoryId(dish.getCategory().getId())
                 .description(dish.getDescription())
+                .quantity(dish.getQuantity())
                 .build();
     }
 
@@ -64,6 +67,7 @@ public class DishService {
                 .price(dish.getPrice())
                 .categoryId(dish.getCategory().getId())
                 .description(dish.getDescription())
+                .quantity(dish.getQuantity())
                 .build()).toList();
     }
 
@@ -75,6 +79,7 @@ public class DishService {
         dish.setPrice(dishDTO.getPrice());
         dish.setCategory(category);
         dish.setDescription(dishDTO.getDescription());
+        dish.setQuantity(dishDTO.getQuantity());
 
         Dish savedDish = dishRepository.save(dish);
 
@@ -86,6 +91,7 @@ public class DishService {
                 .categoryId(savedDish.getCategory().getId())
                 .price(savedDish.getPrice())
                 .description(savedDish.getDescription())
+                .quantity(savedDish.getQuantity())
                 .build();
     }
     public Dish getDishOrThrowException(long dishId) {

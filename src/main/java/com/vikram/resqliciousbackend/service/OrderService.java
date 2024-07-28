@@ -2,11 +2,9 @@ package com.vikram.resqliciousbackend.service;
 
 import com.vikram.resqliciousbackend.dto.CartDTO;
 import com.vikram.resqliciousbackend.dto.OrderDTO;
-import com.vikram.resqliciousbackend.entity.Cart;
-import com.vikram.resqliciousbackend.entity.Order;
-import com.vikram.resqliciousbackend.entity.Restaurant;
-import com.vikram.resqliciousbackend.entity.User;
+import com.vikram.resqliciousbackend.entity.*;
 import com.vikram.resqliciousbackend.exception.ResourceNotFoundException;
+import com.vikram.resqliciousbackend.repository.DishRepository;
 import com.vikram.resqliciousbackend.repository.OrderRepository;
 import com.vikram.resqliciousbackend.repository.RestaurantRepository;
 import com.vikram.resqliciousbackend.repository.UserRepository;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,6 +24,7 @@ public class OrderService {
     private final RestaurantService restaurantService;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
+    private final DishRepository dishRepository;
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
         long userId = orderDTO.getUserId();
@@ -47,6 +47,21 @@ public class OrderService {
 
         userRepository.save(user);
         restaurantRepository.save(restaurant);
+
+        Map<Long, Integer> dishQuantities = orderDTO.getDishQuantities();
+
+        // DishId, Quantity
+        dishQuantities.forEach((key, value) -> {
+            Optional<Dish> dishOptional = dishRepository.findById(key);
+            if (dishOptional.isPresent()) {
+                Dish dish = dishOptional.get();
+                Integer oldQuantity = dish.getQuantity();
+                Integer newQuantity = oldQuantity - value;
+                dish.setQuantity(newQuantity);
+                dishRepository.save(dish);
+            }
+        });
+
 
         return OrderDTO.builder()
                 .id(savedOrder.getId())
