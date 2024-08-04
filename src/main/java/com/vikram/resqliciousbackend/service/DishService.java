@@ -7,8 +7,14 @@ import com.vikram.resqliciousbackend.exception.ResourceNotFoundException;
 import com.vikram.resqliciousbackend.repository.DishRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ public class DishService {
                 .category(category)
                 .description(dishDTO.getDescription())
                 .quantity(dishDTO.getQuantity())
+                .imageUrl(dishDTO.getImageUrl())
                 .build();
 
         Dish savedDish = dishRepository.save(dish);
@@ -40,6 +47,7 @@ public class DishService {
                 .price(savedDish.getPrice())
                 .description(savedDish.getDescription())
                 .quantity(savedDish.getQuantity())
+                .imageUrl(savedDish.getImageUrl())
                 .build();
 
     }
@@ -54,6 +62,7 @@ public class DishService {
                 .categoryId(dish.getCategory().getId())
                 .description(dish.getDescription())
                 .quantity(dish.getQuantity())
+                .imageUrl(dish.getImageUrl())
                 .build();
     }
 
@@ -68,6 +77,7 @@ public class DishService {
                 .categoryId(dish.getCategory().getId())
                 .description(dish.getDescription())
                 .quantity(dish.getQuantity())
+                .imageUrl(dish.getImageUrl())
                 .build()).toList();
     }
 
@@ -92,6 +102,7 @@ public class DishService {
                 .price(savedDish.getPrice())
                 .description(savedDish.getDescription())
                 .quantity(savedDish.getQuantity())
+                .imageUrl(savedDish.getImageUrl())
                 .build();
     }
     public Dish getDishOrThrowException(long dishId) {
@@ -99,4 +110,43 @@ public class DishService {
     }
 
 
+    public DishDTO addDishImage(Long id, String path, MultipartFile file) throws IOException {
+        Dish dish = getDishOrThrowException(id);
+
+        // File logic
+        String originalFilename = file.getOriginalFilename();
+
+
+        String randomID = UUID.randomUUID().toString();
+        String randomFileName= randomID.concat(originalFilename.substring(originalFilename.lastIndexOf(".")));
+
+        // Full path
+        String filePath = path + File.separator + randomFileName;
+
+        // Create folder if not created
+        File f = new File(path);
+
+        if(!f.exists()) {
+            f.mkdir();
+        }
+
+        // File copy
+        Files.copy(file.getInputStream(), Paths.get(filePath));
+
+        dish.setImageUrl(randomFileName);
+
+
+        Dish savedDish = dishRepository.save(dish);
+
+        return DishDTO.builder()
+                .id(savedDish.getId())
+                .name(savedDish.getName())
+                .categoryId(savedDish.getCategory().getId())
+                .price(savedDish.getPrice())
+                .description(savedDish.getDescription())
+                .quantity(savedDish.getQuantity())
+                .imageUrl(savedDish.getImageUrl())
+                .build();
+
+    }
 }

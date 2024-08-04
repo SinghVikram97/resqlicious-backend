@@ -18,4 +18,5 @@ public class DishDTO {
     private Long categoryId;
     private String description;
     private Integer quantity;
+    private String imageUrl;
 }

@@ -44,7 +44,7 @@ public class PasswordResetService {
         mailMessage.setTo(email);
         mailMessage.setSubject("Password Reset Request");
         mailMessage.setText("To reset your password, click the link below:\n"
-                + "http://localhost:8080/api/v1/reset-password?token=" + token);
+                + "http://localhost:3000/reset-password?token=" + token);
         mailSender.send(mailMessage);
     }
 

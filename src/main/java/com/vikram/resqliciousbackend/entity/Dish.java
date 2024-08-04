@@ -26,4 +26,7 @@ public class Dish {
     private Category category;
 
     private Integer quantity;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 }
